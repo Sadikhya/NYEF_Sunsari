@@ -9,8 +9,8 @@ const executive = [
   ['/assets/team/utshab-thapa.jpg','UTSHAB THAPA','EXECUTIVE MEMBER'],
   ['/assets/team/jerman-poudel.jpg','JERMAN POUDEL','EXECUTIVE MEMBER'],
   ['/assets/team/nishant-khedia.jpg','NISHANT KHEDIA','EXECUTIVE MEMBER'],
-  ['/assets/team/rahul-bhandari-extended.png','RAHUL BHANDARI','EXECUTIVE MEMBER',null,'object-top origin-top scale-[1.25]'],
-  ['/assets/team/aavash-bhandari-extended.png','AAVASH BHATTRAI','EXECUTIVE MEMBER'],
+  ['/assets/team/rahul-bhandari.png','RAHUL BHANDARI','EXECUTIVE MEMBER',null,'object-top origin-top scale-[1.25]'],
+  ['/assets/team/aavash-bhandari.png','AAVASH BHATTRAI','EXECUTIVE MEMBER'],
   ['/assets/team/binita-poudel.png','BINITA POUDEL','EXECUTIVE MEMBER',null,'object-center scale-[1.5] -translate-y-[8%]'],
   ['/assets/team/dipesh-shrestha.jpg','DIPESH SHRESTHA','EXECUTIVE MEMBER',null,'object-top scale-[1.03]'],
   ['/assets/team/mission-parajuli.png','MISSION PARAJULI','EXECUTIVE MEMBER',null,'object-top origin-top scale-[1.35]'],
@@ -19,8 +19,8 @@ const presidents = [
   ['/assets/team/rajiv-ghimire.jpg','Mr. Rajiv Ghimire','Immediate Past President','2025-2026'],
   ['/assets/team/siddhartha-shrestha.jpeg','Mr. Siddhartha Shrestha','Past President','2023-2025'],
   ['/assets/team/chandra-devkota.jpg','Mr. Chandra Devkota','Past President','2022-2023'],
-  ['/assets/team/santosh-acharya-clear.png','Mr. Santosh Acharya','Past President','2021-2022'],
-  ['/assets/team/sudip-ghimire-clear.png','Mr. Sudip Ghimire','Founder President','2019-2020'],
+  ['/assets/team/santosh-acharya.png','Mr. Santosh Acharya','Past President','2021-2022'],
+  ['/assets/team/sudip-ghimire.png','Mr. Sudip Ghimire','Founder President','2019-2020'],
 ]
 const tabs = [['exec-committee','Executive Committee'],['past-presidents','Past Presidents'],['gen-members','General Members']]
 

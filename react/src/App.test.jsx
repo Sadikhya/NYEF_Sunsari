@@ -12,16 +12,31 @@ describe('NYEF site navigation', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: /welcome to nyef sunsari/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /become a member/i })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: /about us/i }))
     expect(screen.getByRole('heading', { name: /who we are/i })).toBeInTheDocument()
   })
 
-  test('uses the pale-blue tint on the home hero background', () => {
-    render(<App />)
-    const hero = screen.getByRole('heading', { name: /welcome to nyef sunsari/i }).closest('section')
+  test('uses the NYEF video behind the membership call to action', () => {
+    const { container } = render(<App />)
+    const memberButton = screen.getByRole('button', { name: /become a member/i })
+    const hero = memberButton.closest('section')
+    const video = container.querySelector('[data-main-video]')
+    const videoBackdrop = container.querySelector('[data-video-backdrop]')
 
-    expect(hero.style.backgroundImage).toContain('rgba(186, 230, 253, 0.18)')
+    expect(hero).toContainElement(video)
+    expect(video).toHaveAttribute('src', '/assets/Nyef.mp4')
+    expect(video).toHaveAttribute('autoplay')
+    expect(video).toHaveAttribute('loop')
+    expect(video).toHaveAttribute('playsinline')
+    expect(video).toHaveProperty('muted', true)
+    expect(video).toHaveClass('object-contain', 'object-center', 'scale-110', 'drop-shadow-2xl')
+    expect(videoBackdrop).toHaveClass('object-cover', 'blur-md', 'opacity-25')
+    expect(container.querySelector('[data-video-layer]')).not.toBeInTheDocument()
+    expect(hero).toHaveClass('bg-white')
+    expect(hero).toHaveClass('w-full', 'h-[clamp(480px,42vw,700px)]')
+    expect(memberButton.parentElement).toHaveClass('bottom-4', 'text-center')
+    expect(screen.queryByText(/welcome to nyef sunsari/i)).not.toBeInTheDocument()
   })
 
   test('shows Sinet Rijal as the current homepage president', () => {
@@ -78,8 +93,8 @@ describe('NYEF site navigation', () => {
 
     await user.click(screen.getByRole('button', { name: /past presidents/i }))
     expect(screen.getByRole('img', { name: 'Mr. Siddhartha Shrestha' })).toHaveAttribute('src', '/assets/team/siddhartha-shrestha.jpeg')
-    expect(screen.getByRole('img', { name: 'Mr. Santosh Acharya' })).toHaveAttribute('src', '/assets/team/santosh-acharya-clear.png')
-    expect(screen.getByRole('img', { name: 'Mr. Sudip Ghimire' })).toHaveAttribute('src', '/assets/team/sudip-ghimire-clear.png')
+    expect(screen.getByRole('img', { name: 'Mr. Santosh Acharya' })).toHaveAttribute('src', '/assets/team/santosh-acharya.png')
+    expect(screen.getByRole('img', { name: 'Mr. Sudip Ghimire' })).toHaveAttribute('src', '/assets/team/sudip-ghimire.png')
   })
 
   test('shows the 2026-27 executive committee in uppercase', async () => {
@@ -108,8 +123,8 @@ describe('NYEF site navigation', () => {
       'UTSHAB THAPA': '/assets/team/utshab-thapa.jpg',
       'JERMAN POUDEL': '/assets/team/jerman-poudel.jpg',
       'NISHANT KHEDIA': '/assets/team/nishant-khedia.jpg',
-      'RAHUL BHANDARI': '/assets/team/rahul-bhandari-extended.png',
-      'AAVASH BHATTRAI': '/assets/team/aavash-bhandari-extended.png',
+      'RAHUL BHANDARI': '/assets/team/rahul-bhandari.png',
+      'AAVASH BHATTRAI': '/assets/team/aavash-bhandari.png',
       'BINITA POUDEL': '/assets/team/binita-poudel.png',
       'DIPESH SHRESTHA': '/assets/team/dipesh-shrestha.jpg',
       'MISSION PARAJULI': '/assets/team/mission-parajuli.png',
