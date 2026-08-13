@@ -1,100 +1,55 @@
-# NYEF Sunsari Members Backend
+# NYEF Sunsari Backend
 
-This Express API stores NYEF Sunsari member records in MySQL. Each member has a name, contact, address, business, optional social-media URL, and optional profile-picture URL/path.
+Express + MySQL backend for the NYEF Sunsari dynamic website and single-admin CMS.
 
-## 1. Install dependencies
+## Setup
 
-Open PowerShell in the project and run:
+1. Install dependencies:
 
-```powershell
-cd backend
-npm install
-```
+   ```powershell
+   cd backend
+   npm install
+   ```
 
-## 2. Create the database
+2. Create `.env` from `.env.example` and set your database credentials plus one admin email/password.
 
-1. Open MySQL Workbench.
-2. Open your local MySQL connection.
-3. Select **File → Open SQL Script**.
-4. Open `backend/sql/schema.sql`.
-5. Click the lightning-bolt **Execute** button.
-6. In the Navigator, refresh **Schemas** and confirm `nyef_sunsari` contains the `members` table.
+3. Create the database and tables:
 
-The table contains `id`, `name`, `contact`, `address`, `business`, `social_media`, `profile_picture`, `created_at`, and `updated_at`.
+   ```powershell
+   mysql -u root -p < sql/schema.sql
+   ```
 
-## 3. Configure the local connection
+4. Seed the current website team/content data:
 
-From the `backend` directory, create your private environment file:
+   ```powershell
+   mysql -u root -p nyef_sunsari < sql/seed-content.sql
+   ```
 
-```powershell
-Copy-Item .env.example .env
-```
+5. Seed the single admin:
 
-Open `.env` and replace only the example password with the password used by your local MySQL connection:
+   ```powershell
+   npm run seed:admin
+   ```
 
-```dotenv
-PORT=5000
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_real_mysql_password
-DB_NAME=nyef_sunsari
-```
+6. Start the API:
 
-Never commit or share `.env`. Git is configured to ignore it.
+   ```powershell
+   npm run dev
+   ```
 
-## 4. Verify and start the API
+The backend runs on `http://localhost:5000` by default.
 
-```powershell
-npm test
-npm run lint
-npm start
-```
+## API Groups
 
-The API listens at `http://localhost:5000` unless `PORT` is changed.
+- `POST /api/admin/login`
+- `GET /api/admin/session`
+- `POST /api/admin/logout`
+- `GET /api/public/members`
+- `GET /api/public/team-members`
+- `GET /api/public/site-content`
+- Protected CRUD:
+  - `/api/admin/members`
+  - `/api/admin/team-members`
+  - `/api/admin/site-content`
 
-## 5. Test it from another PowerShell window
-
-Check API health:
-
-```powershell
-Invoke-RestMethod http://localhost:5000/api/health
-```
-
-Create a member:
-
-```powershell
-$member = @{
-  name = 'Test Member'
-  contact = '9800000000'
-  address = 'Sunsari'
-  business = 'Test Business'
-  social_media = $null
-  profile_picture = $null
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-  -Method Post `
-  -Uri http://localhost:5000/api/members `
-  -ContentType 'application/json' `
-  -Body $member
-```
-
-List all members:
-
-```powershell
-Invoke-RestMethod http://localhost:5000/api/members
-```
-
-## API routes
-
-| Method | Route | Purpose |
-|---|---|---|
-| `GET` | `/api/health` | Check whether the API is running |
-| `GET` | `/api/members` | List all members, newest first |
-| `GET` | `/api/members/:id` | Read one member |
-| `POST` | `/api/members` | Create a member |
-| `PUT` | `/api/members/:id` | Replace a member's editable fields |
-| `DELETE` | `/api/members/:id` | Delete a member |
-
-Create and update requests require non-empty `name`, `contact`, `address`, and `business` strings. `social_media` and `profile_picture` may be strings or `null`.
+There is no admin registration route. To change the admin account, update `.env` and rerun `npm run seed:admin`.
