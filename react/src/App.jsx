@@ -9,17 +9,19 @@ import MembershipPage from './pages/MembershipPage'
 import TeamPage from './pages/TeamPage'
 import GalleryPage from './pages/GalleryPage'
 import ContactPage from './pages/ContactPage'
+import AdminPanel from './admin/AdminPanel'
 
-const pages = new Set(['home', 'about', 'what-we-do', 'membership', 'team', 'gallery', 'contact'])
+const pages = new Set(['home', 'about', 'what-we-do', 'membership', 'team', 'gallery', 'contact', 'admin'])
 
 export default function App() {
-  const [activePage, setActivePage] = useState('home')
+  const [activePage, setActivePage] = useState(window.location.hash === '#admin' ? 'admin' : 'home')
   const [teamTab, setTeamTab] = useState('exec-committee')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [toastVisible, setToastVisible] = useState(false)
 
   const navigate = (page, tab) => {
     setActivePage(pages.has(page) ? page : 'home')
+    window.location.hash = page === 'admin' ? 'admin' : ''
     if (page === 'team' && tab) setTeamTab(tab)
     setMobileOpen(false)
     window.scrollTo?.({ top: 0, behavior: 'smooth' })
@@ -41,7 +43,10 @@ export default function App() {
     team: <TeamPage activeTab={teamTab} onTabChange={setTeamTab} />,
     gallery: <GalleryPage />,
     contact: <ContactPage onSuccess={showSuccess} />,
+    admin: <AdminPanel onExit={() => navigate('home')} />,
   }[activePage]
+
+  if (activePage === 'admin') return page
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700">
