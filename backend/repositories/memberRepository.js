@@ -1,49 +1,36 @@
-const columns = [
-  'id',
-  'name',
-  'contact',
-  'address',
-  'business',
-  'social_media',
-  'profile_picture',
-  'created_at',
-  'updated_at',
-].join(', ')
-
 export function createMemberRepository(database) {
-  async function findById(id) {
-    const [rows] = await database.execute(
-      `SELECT ${columns} FROM members WHERE id = ?`,
-      [id],
-    )
-    return rows[0] ?? null
-  }
+  const fields = 'id, name, contact, address, business, profile_picture, created_at, updated_at'
 
   return {
-    async list() {
-      const [rows] = await database.execute(
-        `SELECT ${columns} FROM members ORDER BY created_at DESC, id DESC`,
-      )
+    async listAdmin() {
+      const [rows] = await database.execute(`SELECT ${fields} FROM members ORDER BY id DESC`)
       return rows
     },
 
-    findById,
+    async listPublic() {
+      const [rows] = await database.execute('SELECT id, name, business, profile_picture FROM members ORDER BY name')
+      return rows
+    },
+
+    async findById(id) {
+      const [rows] = await database.execute(`SELECT ${fields} FROM members WHERE id = ? LIMIT 1`, [id])
+      return rows[0] || null
+    },
 
     async create(member) {
-      const values = Object.values(member)
       const [result] = await database.execute(
-        'INSERT INTO members (name, contact, address, business, social_media, profile_picture) VALUES (?, ?, ?, ?, ?, ?)',
-        values,
+        'INSERT INTO members (name, contact, address, business, profile_picture) VALUES (?, ?, ?, ?, ?)',
+        [member.name, member.contact, member.address, member.business, member.profile_picture],
       )
-      return findById(result.insertId)
+      return this.findById(result.insertId)
     },
 
     async update(id, member) {
       const [result] = await database.execute(
-        'UPDATE members SET name = ?, contact = ?, address = ?, business = ?, social_media = ?, profile_picture = ? WHERE id = ?',
-        [...Object.values(member), id],
+        'UPDATE members SET name = ?, contact = ?, address = ?, business = ?, profile_picture = ? WHERE id = ?',
+        [member.name, member.contact, member.address, member.business, member.profile_picture, id],
       )
-      return result.affectedRows ? findById(id) : null
+      return result.affectedRows ? this.findById(id) : null
     },
 
     async remove(id) {
