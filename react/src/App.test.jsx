@@ -1,13 +1,66 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, test, vi } from 'vitest'
+import { adminSections, defaultAdminSection, emptyForms, filterContentRecords } from './admin/adminConfig'
 import App from './App'
+import { TeamCard } from './components/ui'
+import { pickNumberedContentList, siteContent } from './data/staticContent'
+import { sortTeamMembers } from './data/teamDisplay'
 
 afterEach(() => {
   vi.useRealTimers()
 })
 
 describe('NYEF site navigation', () => {
+  test('admin dashboard keeps team and content navigation', () => {
+    expect(adminSections.map(([, label]) => label)).toEqual(['Team', 'Content'])
+  })
+
+  test('admin dashboard default section has a matching empty form', () => {
+    expect(defaultAdminSection).toBe('team-members')
+    expect(emptyForms[defaultAdminSection]).toEqual(expect.objectContaining({ category: 'executive_committee' }))
+  })
+
+  test('filters content records by dashboard category banner', () => {
+    const records = [
+      { content_key: 'president_message', title: 'President' },
+      { content_key: 'focus_1', title: 'Focus' },
+      { content_key: 'value_1', title: 'Value' },
+      { content_key: 'custom_section', title: 'Other' },
+    ]
+
+    expect(filterContentRecords(records, 'president').map((record) => record.title)).toEqual(['President'])
+    expect(filterContentRecords(records, 'focus').map((record) => record.title)).toEqual(['Focus'])
+    expect(filterContentRecords(records, 'values').map((record) => record.title)).toEqual(['Value'])
+    expect(filterContentRecords(records, 'other').map((record) => record.title)).toEqual(['Other'])
+    expect(filterContentRecords(records, 'all')).toHaveLength(4)
+  })
+
+  test('sorts executive team by role priority when display order is not used', () => {
+    const people = [
+      { name: 'Member', position: 'Executive Member' },
+      { name: 'Immediate', position: 'Immediate Past President' },
+      { name: 'Vice', position: 'First Vice President' },
+      { name: 'President', position: 'President' },
+    ]
+
+    expect(sortTeamMembers(people).map((person) => person.name)).toEqual(['President', 'Immediate', 'Vice', 'Member'])
+  })
+
+  test('team cards show all entered member details', () => {
+    render(<TeamCard name="Ada" role="President" business="Studio" contact="9800" address="Itahari" />)
+
+    expect(screen.getByText('Studio')).toBeInTheDocument()
+    expect(screen.getByText('9800')).toBeInTheDocument()
+    expect(screen.getByText('Itahari')).toBeInTheDocument()
+  })
+
+  test('team portrait default crop hides photo edge borders', () => {
+    render(<TeamCard image="/portrait.jpg" name="Ada" role="President" />)
+
+    expect(screen.getByRole('img', { name: 'Ada' })).toHaveClass('scale-[1.08]')
+  })
+
   test('opens on the home page and navigates to About Us', async () => {
     const user = userEvent.setup()
     render(<App />)
@@ -45,6 +98,34 @@ describe('NYEF site navigation', () => {
     expect(screen.getByRole('img', { name: /president sinet rijal/i })).toHaveAttribute('src', '/assets/team/sinetrijal.jpg')
     expect(screen.getByRole('heading', { name: /mr\. sinet rijal/i })).toBeInTheDocument()
     expect(screen.getByText('President, NYEF Sunsari (2026-2027)')).toBeInTheDocument()
+  })
+
+  test('has editable content records for homepage focus and value cards', () => {
+    const keys = siteContent.map((item) => item.content_key)
+
+    expect(keys).toEqual(expect.arrayContaining([
+      'focus_intro',
+      'focus_1',
+      'focus_2',
+      'focus_3',
+      'focus_4',
+      'values_intro',
+      'value_1',
+      'value_2',
+      'value_3',
+      'value_4',
+    ]))
+  })
+
+  test('allows adding more numbered homepage focus and value records', () => {
+    const content = Object.fromEntries([
+      { content_key: 'focus_10', title: 'Tenth Focus', body: 'Later item' },
+      { content_key: 'focus_2', title: 'Second Focus', body: 'Earlier item' },
+      { content_key: 'value_5', title: 'Fifth Value', body: 'New value' },
+    ].map((item) => [item.content_key, item]))
+
+    expect(pickNumberedContentList(content, 'focus').map((item) => item.title)).toEqual(['Second Focus', 'Tenth Focus'])
+    expect(pickNumberedContentList(content, 'value').map((item) => item.title)).toEqual(['Fifth Value'])
   })
 
   test('opens a selected team collection', async () => {
